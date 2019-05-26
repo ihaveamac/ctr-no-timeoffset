@@ -34,7 +34,7 @@ DATA		:=	data
 INCLUDES	:=	include
 #ROMFS		:=	romfs
 
-VERSION		:=	1.0
+VERSION		:=	1.1
 
 APP_TITLE	:=	ctr-no-timeoffset
 APP_DESCRIPTION	:=	Displays current time offset and sets to 0

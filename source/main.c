@@ -9,25 +9,31 @@ union TimeOffset {
 };
 
 int main(int argc, char **argv) {
-
-	gfxInitDefault();
-	cfguInit();
-	consoleInit(GFX_TOP, NULL);
-
 	Result res;
 	union TimeOffset timeOffset;
+
+	gfxInitDefault();
+	res = cfguInit();
+	consoleInit(GFX_TOP, NULL);
+
 	u8 zeros[8] = {0};
 
 	printf("ctr-no-timeoffset v%s by ihaveamac\n\n", VERSION);
 
-	res = CFGU_GetConfigInfoBlk2(8, 0x00030001, &timeOffset.raw_offset[0]);
 	if (R_FAILED(res)) {
-		printf("CFGU_GetConfigInfoBlk2 failed: 0x%lx\nMake sure the SM patch is enabled or this program has cfg:u access.\n", res);
+		printf("cfguInit failed: 0x%lx\nMake sure the SM patch is enabled or this program has cfg:u access.", res);
 	} else {
-		printf("Current offset: %lli\n", timeOffset.offset);
-		puts("Press A to set offset to 0.");
+		res = CFGU_GetConfigInfoBlk2(8, 0x00030001, &timeOffset.raw_offset[0]);
+		if (R_FAILED(res)) {
+			printf("CFGU_GetConfigInfoBlk2 failed: 0x%lx\nMake sure the SM patch is enabled or this program has cfg:u access.\n", res);
+		} else {
+			printf("Current offset: %lli\n", timeOffset.offset);
+			putchar('\n');
+			puts("Press A to set offset to 0.");
+		}
 	}
 	puts("Press START to quit.");
+	puts("Press Y to reboot.");
 
 	while (aptMainLoop()) {
 
@@ -40,7 +46,7 @@ int main(int argc, char **argv) {
 			if (R_FAILED(res)) {
 				printf("\nCFG_SetConfigInfoBlk4 failed: 0x%lx\nMake sure the SM patch is enabled or this program has cfg:s access.\n", res);
 			}
-			res = CFG_UpdateConfigNANDSavegame();
+			res = CFG_UpdateConfigSavegame();
 			if (R_FAILED(res)) {
 				printf("\nCFG_UpdateConfigNANDSavegame failed: 0x%lx\nMake sure the SM patch is enabled or this program has cfg:s access.\n", res);
 			}
@@ -48,6 +54,11 @@ int main(int argc, char **argv) {
 			if (R_SUCCEEDED(res)) {
 				puts("Offset changed successfully. Reboot is highly\nrecommended.");
 			}
+		}
+		if (kDown & KEY_Y) {
+			puts("Rebooting...");
+			APT_HardwareResetAsync();
+			while (1);
 		}
 		if (kDown & KEY_START)
 			break;
