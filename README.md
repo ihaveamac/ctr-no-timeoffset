@@ -1,3 +1,5 @@
+This software should not be used anymore. It is kept for historical purposes.
+
 # ctr-no-timeoffset
 Sets the time offset in [Config Savegame](https://www.3dbrew.org/wiki/Config_Savegame) to 0. Meant to be used after setting Raw RTC to the correct time.
 
